@@ -5,6 +5,7 @@ library(xgboost)
 library(caret)
 library(data.table)
 library(pROC)
+library(tibble)
 
 setwd('c:/kaggle')
 #retrieve train and test
@@ -78,3 +79,13 @@ solution <- data.frame(id = test$id, target = prediction)
 
 #save
 write.csv(solution, file = 'first_sol.csv', row.names = F)
+
+#Check importance
+imp_matrix <- as.tibble(xgb.importance(feature_names = colnames(train %>% select(-target)), model = gb_dt))
+
+imp_matrix %>%
+  ggplot(aes(reorder(Feature, Gain, FUN = max), Gain, fill = Feature)) +
+  geom_col() +
+  coord_flip() +
+  theme(legend.position = "none") +
+  labs(x = "Features", y = "Importance")
